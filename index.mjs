@@ -49,8 +49,12 @@ let speedMultiplier = 1;
 
 let showHeat = false;
 
+let ventMult = 0;
+
+
+
 setInterval(() => {
-  fov = 7 - document.getElementById("size").value / 40;
+  fov = 7 - document.getElementById("size").value / 30;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -62,13 +66,14 @@ setInterval(() => {
     document.getElementById("sliderx").value > 160
   ) {
     inOverdrive = true;
-    speedMultiplier = 1.4 + overdrive / 2000;
+    speedMultiplier = 1.4 + overdrive / 2000 + ventMult;
   }
 
+  let isSwitched = (Number(document.getElementById("switchBox").checked) * 2 - 1);
   rotationy +=
-    (document.getElementById("slidery").value / 5000) * -1 * speedMultiplier;
+    (document.getElementById("slidery").value / 5000) * (-isSwitched) * speedMultiplier;
   rotationx +=
-    (document.getElementById("sliderx").value / 5000) * -1 * speedMultiplier;
+    (document.getElementById("sliderx").value / 5000) * (isSwitched) * speedMultiplier;
 
   for (let i of points) {
     let x = i[0];
@@ -88,7 +93,7 @@ setInterval(() => {
     z = Math.sin(rotationy) * x_temp + Math.cos(rotationy) * z_temp;
 
     x = (((x * fov) / (fov + z)) * 130 * document.getElementById("size").value) / 100 + 230;
-    y = (((y * fov) / (fov + z)) * 130 * document.getElementById("size").value) / 100 + 250;
+    y = (((y * fov) / (fov + z)) * 130 * document.getElementById("size").value) / 100 + 320;
 
 
     let dot = document.getElementById("dot" + count);
@@ -150,51 +155,17 @@ setInterval(() => {
 
     document.getElementById("overheatText").style.opacity = 1;
 
-    if (overdrive > 330) {
-      //cooling sliders
+    if (overdrive > 500) {
+      //TODO: make cube vent steam and slow sliders to cool down
+      ventHeat()
 
-        //show sliders
-      document.getElementById("cool1").style.opacity = 1;
-      document.getElementById("cool2").style.opacity = 1;
-
-      document.getElementById("cooltext1").style.opacity = 1;
-      document.getElementById("cooltext2").style.opacity = 1;
-
-      //makes seeing cool slider value easier
-      let cool1 = document.getElementById("cool1").value;
-      let cool2 = document.getElementById("cool2").value;
-      
-      //logic
-      if (cool1 > 500) {
-        overdrive -= 0.25 + cool1 / 5000;
-        document.getElementById("cool1").value -= 1;
       }
-
-      if (cool2 < 500) {
-        overdrive -= 0.25 + (1000 - cool2) / 5000;
-        document.getElementById("cool2").value -= -1;
-      }
-    }
+    
   } 
   else {
-
-    //set all opacity to 0
     document.getElementById("overheatText").style.opacity = 0;
-
-    document.getElementById("cool1").style.opacity = 0;
-    document.getElementById("cool2").style.opacity = 0;
-
-    document.getElementById("cooltext1").style.opacity = 0;
-    document.getElementById("cooltext2").style.opacity = 0;
   }
 
-  //extremely overheating
-  if (overdrive > 500) {
-    document.getElementById("fire").style.marginTop = "-800px";
-  } 
-  else {
-    document.getElementById("fire").style.marginTop = "0px";
-  }
 
   //overdrive secret stuff
   document.getElementById("heatText").textContent = Math.round(overdrive.toString());
@@ -218,3 +189,34 @@ setInterval(() => {
 
 
 }, 10);
+
+
+
+function ventHeat() 
+{
+  let slidery = document.getElementById("slidery");
+  let slideryV = parseInt(document.getElementById("slidery").value); //gets initial value
+
+  let sliderx = document.getElementById("sliderx");
+  let sliderxV = document.getElementById("sliderx").value;
+
+  let decreaseX = 0;
+  let decreaseY = 0;
+
+  let interval = setInterval(() => {
+    if(overdrive <= 250)
+    {
+      clearInterval(interval)
+      overdrive = Math.round(overdrive)
+    }
+
+    overdrive += -0.6;
+
+
+    decreaseY += -1 + slidery.value / 50; //moves x% closer to 0, + math stuff
+    decreaseX += -1 + sliderx.value / 50;
+
+    slidery.value = Math.max((slideryV - decreaseY), 0); //subtracts starting value by growing value
+    sliderx.value = Math.max((sliderxV - decreaseX), 0);
+  }, 10);
+}
