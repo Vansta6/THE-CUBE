@@ -12,6 +12,7 @@ body {
 }
 
 .slider {
+  -webkit-appearance: none;
   width: 150px;
   height: 10px;
   border-radius: 21px;
@@ -23,6 +24,7 @@ body {
 }
 
 .overdriveSlider {
+  -webkit-appearance: none;
   width: 150px;
   height: 10px;
   border-radius: 20px;

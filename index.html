@@ -23,7 +23,7 @@
     <h1 id="dot7" class="dot"></h1>
 
     <div class="slidecontainer">
-      <h4>Yspeed</h4>
+      <h3>Yspeed</h3>
       <input
         type="range"
         min="0"
@@ -35,7 +35,7 @@
     </div>
 
     <div class="slidecontainer">
-      <h4>Xspeed</h4>
+      <h3>Xspeed</h3>
       <input
         type="range"
         min="0"
@@ -50,9 +50,9 @@
       <h4>Distance</h4>
       <input
         type="range"
-        min="10"
+        min="30"
         max="160"
-        value="100"
+        value="95"
         class="slider"
         id="size"
       />
@@ -64,10 +64,14 @@
       <input
         type="checkbox"
         id="switchBox"
-        name="subscribe"
+        name="switchBox"
         value="1"
         style="margin-left: 43px; margin-top: -15px;"/>
     </div>
+
+
+    <button id="returnButton" style="margin-top: 30px; margin-left: 25px;position:fixed">Stabilize</button>
+
 
 
 
@@ -79,12 +83,18 @@
       style="margin-top: -400px; margin-left: 150px"
     ></canvas>
 
-    <h1 id="heatText" class="warning" style="opacity: 1; margin-top: -300px; margin-left: 40%;" >0</h1> 
+    <h1 id="heatText" class="warning" style="opacity: 1; margin-top: -300px; margin-left: 40%; opacity: 0;" >0</h1> 
 
-    <h1 id="overheatText" class="warning" style="margin-top:-200px; margin-left: 300px; opacity: 0;" >OVERHEATING</h1>
+    <h1 id="debug1" class="warning" style="opacity: 1; margin-top: -400px; margin-left: 30%; opacity: 0;" >0</h1> 
+    <h1 id="debug2" class="warning" style="opacity: 1; margin-top: -200px; margin-left: 30%; opacity: 0;" >0</h1> 
 
 
-    
+    <h1 id="overheatText" class="warning" style="margin-top:-250px; margin-left: 22%; opacity: 0; font-size: x-large;" >OVERHEATING</h1>
+
+    <h1 id="ventText" class="warning" style="margin-top:-200px; margin-left: 19%; opacity: 0; font-size:xx-large;" >VENTING GAS</h1>
+
     <script src="./index.mjs" type="module"></script>
+    
+
   </body>
 </html>
