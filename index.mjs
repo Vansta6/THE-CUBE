@@ -1,4 +1,4 @@
-let fov = (6 * document.getElementById("size").value) / 100;
+let fov = (6 * (document.getElementById("size").value)) / 100;
 let rotationx = 0;
 let rotationy = 0;
 
@@ -49,8 +49,17 @@ let speedMultiplier = 1;
 
 let showHeat = false;
 
+let ventMult = 0;
+
+
+document.getElementById("returnButton").onclick = function() {returnRotation(500)};
+
+
+
 setInterval(() => {
-  fov = 7 - document.getElementById("size").value / 40;
+  let size = document.getElementById("size").value;
+
+  fov = 7 - size / 30;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -62,13 +71,14 @@ setInterval(() => {
     document.getElementById("sliderx").value > 160
   ) {
     inOverdrive = true;
-    speedMultiplier = 1.4 + overdrive / 2000;
+    speedMultiplier = 1.4 + overdrive / 2000 + ventMult;
   }
 
+  let isSwitched = (Number(document.getElementById("switchBox").checked) * 2 - 1);
   rotationy +=
-    (document.getElementById("slidery").value / 5000) * -1 * speedMultiplier;
+    (document.getElementById("slidery").value / 5000) * (-isSwitched) * speedMultiplier;
   rotationx +=
-    (document.getElementById("sliderx").value / 5000) * -1 * speedMultiplier;
+    (document.getElementById("sliderx").value / 5000) * (isSwitched) * speedMultiplier;
 
   for (let i of points) {
     let x = i[0];
@@ -87,8 +97,10 @@ setInterval(() => {
     x = Math.cos(rotationy) * x_temp - Math.sin(rotationy) * z_temp;
     z = Math.sin(rotationy) * x_temp + Math.cos(rotationy) * z_temp;
 
-    x = (((x * fov) / (fov + z)) * 130 * document.getElementById("size").value) / 100 + 230;
-    y = (((y * fov) / (fov + z)) * 130 * document.getElementById("size").value) / 100 + 250;
+    
+
+    x = (((x * fov) / (fov + z)) * 130 * size) / 100 + 230;
+    y = (((y * fov) / (fov + z)) * 130 * size) / 100 + 320;
 
 
     let dot = document.getElementById("dot" + count);
@@ -102,7 +114,7 @@ setInterval(() => {
       let enddot = document.getElementById("dot" + i[1]);
 
       ctx.beginPath();
-      ctx.lineWidth = 0.1 + document.getElementById("size").value / 30;
+      ctx.lineWidth = 0.1 + size / 30;
       ctx.moveTo(temp_points[i[0]][0], temp_points[i[0]][1]);
       ctx.lineTo(temp_points[i[1]][0], temp_points[i[1]][1]);
       ctx.closePath();
@@ -150,67 +162,36 @@ setInterval(() => {
 
     document.getElementById("overheatText").style.opacity = 1;
 
-    if (overdrive > 330) {
-      //cooling sliders
+    if (overdrive > 500) {
+      //TODO: make cube vent steam
+      ventHeat()
 
-        //show sliders
-      document.getElementById("cool1").style.opacity = 1;
-      document.getElementById("cool2").style.opacity = 1;
-
-      document.getElementById("cooltext1").style.opacity = 1;
-      document.getElementById("cooltext2").style.opacity = 1;
-
-      //makes seeing cool slider value easier
-      let cool1 = document.getElementById("cool1").value;
-      let cool2 = document.getElementById("cool2").value;
-      
-      //logic
-      if (cool1 > 500) {
-        overdrive -= 0.25 + cool1 / 5000;
-        document.getElementById("cool1").value -= 1;
       }
-
-      if (cool2 < 500) {
-        overdrive -= 0.25 + (1000 - cool2) / 5000;
-        document.getElementById("cool2").value -= -1;
-      }
-    }
+    
   } 
   else {
-
-    //set all opacity to 0
     document.getElementById("overheatText").style.opacity = 0;
-
-    document.getElementById("cool1").style.opacity = 0;
-    document.getElementById("cool2").style.opacity = 0;
-
-    document.getElementById("cooltext1").style.opacity = 0;
-    document.getElementById("cooltext2").style.opacity = 0;
   }
 
-  //extremely overheating
-  if (overdrive > 500) {
-    document.getElementById("fire").style.marginTop = "-800px";
-  } 
-  else {
-    document.getElementById("fire").style.marginTop = "0px";
-  }
 
   //overdrive secret stuff
-  document.getElementById("heatText").textContent = Math.round(overdrive.toString());
+  document.getElementById("heatText").textContent = Math.round(overdrive);
 
-  document.addEventListener('keydown', function(event) {
-    if(event.key == "k")
-      {
-        showHeat = !showHeat;
-      }
-  })
+
+
+  document.getElementById("debug1").textContent = (parseFloat(Math.cos(rotationx).toFixed(4)));
+  document.getElementById("debug2").textContent = (parseFloat(Math.sin(rotationy).toFixed(4)));
+
 
   if (showHeat) {
-    document.getElementById("heatText").style.opacity = 1;
+    document.getElementById("heatText").style.opacity = 0;
+    document.getElementById("debug1").style.opacity = 0;
+    document.getElementById("debug2").style.opacity = 0;
   }
   else {
     document.getElementById("heatText").style.opacity = 0;
+    document.getElementById("debug1").style.opacity = 0;
+    document.getElementById("debug2").style.opacity = 0;
   }
   
 
@@ -218,3 +199,77 @@ setInterval(() => {
 
 
 }, 10);
+
+setInterval(() => { //for key detection
+  document.addEventListener('keydown', function(event) {
+    if(event.key == "k")
+      {
+        showHeat = !showHeat;
+      }
+    if(event.key == "j")
+      {
+        returnRotation(400);
+      }
+  })
+}, 0);
+
+function ventHeat() 
+{
+  document.getElementById("ventText").style.opacity = 1;
+
+  let slidery = document.getElementById("slidery");
+  let slideryV = parseInt(document.getElementById("slidery").value); //gets initial value
+
+  let sliderx = document.getElementById("sliderx");
+  let sliderxV = document.getElementById("sliderx").value;
+
+  let decreaseX = 0;
+  let decreaseY = 0;
+
+  let interval = setInterval(() => {
+    if(overdrive <= 200)
+    {
+      clearInterval(interval);
+      overdrive = Math.round(overdrive);
+      document.getElementById("ventText").style.opacity = 0;
+      returnRotation(100);
+    }
+
+    overdrive += -0.5;
+
+
+    decreaseY += 1 + ((slidery.value / 50) * (slidery.value / 50)) / 5; //moves x% closer to 0, + math stuff
+    decreaseX += 1 + ((sliderx.value / 50) * (sliderx.value / 50)) / 5;
+
+    slidery.value = Math.max((slideryV - decreaseY), 0); //subtracts starting value by growing value
+    sliderx.value = Math.max((sliderxV - decreaseX), 0);
+  }, 10);
+}
+
+function returnRotation(speed) {
+
+  let slidery = document.getElementById("slidery");
+  let sliderx = document.getElementById("sliderx");
+
+  //if()
+
+  let returnInter = setInterval(() => { //resets rotation
+
+    slidery = document.getElementById("slidery");
+    sliderx = document.getElementById("sliderx");
+
+    slidery.value = Math.abs(Math.sin(rotationy) * speed);
+    sliderx.value = Math.abs(Math.cos(rotationx) * speed);
+
+
+    if(parseFloat(Math.cos(rotationx).toFixed(2)) == 0 && parseFloat(Math.sin(rotationy).toFixed(2)) == 0) //if its at 0 rotation
+    {
+      slidery.value = 0;
+      sliderx.value = 0;
+      clearInterval(returnInter); //does not stop current iteration
+    }
+
+    
+
+  }, 20)
+}
